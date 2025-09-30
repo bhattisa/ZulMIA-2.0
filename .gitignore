@@ -1,0 +1,19 @@
+# Gradle
+.gradle/
+build/
+**/build/
+local.properties
+.idea/
+*.iml
+.gradle/
+# Android Studio
+.cxx/
+.externalNativeBuild/
+# APK outputs
+app/build/outputs/
+!app/build/outputs/apk/timestamped/**
+# Videos
+video_edits/
+# OS files
+.DS_Store
+scrcpy_recording.mp4

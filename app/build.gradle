@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.zulmia.app'
+    compileSdkVersion 34
+
+    defaultConfig {
+        applicationId "com.zulmia.app"
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+// Helper to produce timestamped APK names like "ZulMIA 2.0 + YYYYMMDD-HHmmss.apk"
+def apkTimestamp() {
+    return new Date().format('yyyyMMdd-HHmmss')
+}
+
+tasks.register('packageDebugWithName', Copy) {
+    group = 'build'
+    description = 'Assemble debug APK and copy with timestamped name.'
+    dependsOn 'assembleDebug'
+    from "$buildDir/outputs/apk/debug"
+    include 'app-debug.apk'
+    into "$buildDir/outputs/apk/timestamped/debug"
+    rename { String n -> "ZulMIA 2.0 + " + apkTimestamp() + ".apk" }
+}
+
+tasks.register('packageReleaseWithName', Copy) {
+    group = 'build'
+    description = 'Assemble release APK and copy with timestamped name.'
+    dependsOn 'assembleRelease'
+    from "$buildDir/outputs/apk/release"
+    include 'app-release-unsigned.apk', 'app-release.apk'
+    into "$buildDir/outputs/apk/timestamped/release"
+    rename { String n -> "ZulMIA 2.0 + " + apkTimestamp() + ".apk" }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+}
+
+

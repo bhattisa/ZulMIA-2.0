@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ZulMIA</string>
+    <string name="customer">Almojdoui</string>
+    <string name="app_label">ZulMIA</string>
+    <string name="register_device">Register Device</string>
+    <string name="register_title">Device Registration</string>
+    <string name="register_instructions">Press the button to register this device. Internet connection is required.</string>
+    <string name="registration_success">Device registered successfully.</string>
+    <string name="registration_failed">Registration failed. Try again.</string>
+    <string name="export_format_label">Export File Format</string>
+    <string name="export_format_standard">Standard Format (All Columns)</string>
+    <string name="export_format_barcode_count">Barcode and Count Format</string>
+</resources>
+
+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="allowed_android_ids">
+        <item>361a80bf4604df46</item>
+        <item>6befcd07446a57cb</item>
+    </string-array>
+
+</resources>
+
+

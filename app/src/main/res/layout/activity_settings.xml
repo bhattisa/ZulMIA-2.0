@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <include layout="@layout/include_toolbar" />
+
+    <CheckBox
+        android:id="@+id/checkbox_clear_shelf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Shelf on each item scan"
+        android:checked="false"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/export_format_label"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"/>
+
+    <RadioGroup
+        android:id="@+id/radio_export_format"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radio_format_standard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_format_standard"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/radio_format_barcode_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_format_barcode_count"/>
+
+    </RadioGroup>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnClearFinished"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear Finished Inventories"
+        android:textAllCaps="false"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>
+
+
