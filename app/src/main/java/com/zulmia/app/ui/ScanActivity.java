@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -44,6 +46,10 @@ public class ScanActivity extends BaseActivity {
     private EditText locationField;
     private EditText shelfField;
     private EditText scanInputField;
+    private boolean handlingShelfCommit = false;
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    private Runnable pendingShelfDebounce = null;
+    private boolean awaitingShelfScan = false;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -169,12 +175,70 @@ public class ScanActivity extends BaseActivity {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
-					String val = shelfField.getText().toString().trim();
-					shelfField.setText(val);
-					scanInputField.requestFocus();
+					commitShelfAndMoveToItem();
 					return true;
 				}
 				return false;
+			}
+		});
+
+		// Also handle physical ENTER key presses from scanners that do not trigger IME actions
+		shelfField.setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					commitShelfAndMoveToItem();
+					return true;
+				}
+				return false;
+			}
+		});
+		// Some scanners send trailing CR/LF instead of an IME action; handle it here too.
+		shelfField.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// Debounce: if content changed and is non-empty, schedule commit after short idle
+				if (pendingShelfDebounce != null) {
+					uiHandler.removeCallbacks(pendingShelfDebounce);
+				}
+				if (s != null && s.length() > 0) {
+					if (awaitingShelfScan) {
+						awaitingShelfScan = false;
+						// Re-enable item field focus for later
+						scanInputField.setFocusable(true);
+						scanInputField.setFocusableInTouchMode(true);
+						commitShelfAndMoveToItem();
+						return;
+					}
+					pendingShelfDebounce = new Runnable() {
+						@Override
+						public void run() {
+							if (!handlingShelfCommit && shelfField.hasFocus()) {
+								commitShelfAndMoveToItem();
+							}
+						}
+					};
+					uiHandler.postDelayed(pendingShelfDebounce, 150);
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if (handlingShelfCommit) return;
+				int len = s.length();
+				if (len == 0) return;
+				char last = s.charAt(len - 1);
+				if (last == '\n' || last == '\r') {
+					handlingShelfCommit = true;
+					commitShelfAndMoveToItem();
+					shelfField.post(new Runnable() {
+						@Override
+						public void run() { handlingShelfCommit = false; }
+					});
+				}
 			}
 		});
 			scanInputField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -198,6 +262,10 @@ public class ScanActivity extends BaseActivity {
 						shelfField.setText("");
 						scanInputField.clearFocus();
 						shelfField.requestFocus();
+						awaitingShelfScan = true;
+						// Temporarily make item field non-focusable so next scanner input goes to shelf
+						scanInputField.setFocusable(false);
+						scanInputField.setFocusableInTouchMode(false);
 						shelfField.post(new Runnable() {
 							@Override
 							public void run() {
@@ -473,6 +541,22 @@ public class ScanActivity extends BaseActivity {
 		} catch (Exception e) {
 			Toast.makeText(this, "No app to open file", Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void commitShelfAndMoveToItem() {
+		String val = shelfField.getText() == null ? "" : shelfField.getText().toString();
+		val = val.replace("\r", "").replace("\n", "").trim();
+		shelfField.setText(val);
+		scanInputField.requestFocus();
+		scanInputField.post(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Editable t = scanInputField.getText();
+					if (t != null) scanInputField.setSelection(t.length());
+				} catch (Exception ignored) { }
+			}
+		});
 	}
 
 	private boolean canHandle(Intent intent) {
