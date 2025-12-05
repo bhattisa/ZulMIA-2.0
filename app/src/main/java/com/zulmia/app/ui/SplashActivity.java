@@ -44,6 +44,18 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
+				// Debug-only bypass: skip registration gate entirely
+				if (com.zulmia.app.BuildConfig.BYPASS_REGISTRATION) {
+					com.zulmia.app.util.SessionManager session = new com.zulmia.app.util.SessionManager(SplashActivity.this);
+					if (session.getUsername() != null) {
+						startActivity(new Intent(SplashActivity.this, MainActivity.class));
+					} else {
+						startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+					}
+					finish();
+					return;
+				}
+
                 // Determine current device ANDROID_ID (lowercased for comparisons)
                 String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                 if (androidId != null) androidId = androidId.trim().toLowerCase();

@@ -84,6 +84,16 @@
                 android:padding="4dp"
                 android:contentDescription="Share"
                 android:src="@drawable/ic_share" />
+
+            <ImageButton
+                android:id="@+id/btnPod"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="6dp"
+                android:background="@android:color/transparent"
+                android:padding="4dp"
+                android:contentDescription="Proof of Delivery"
+                android:src="@drawable/ic_pod" />
         </LinearLayout>
     </LinearLayout>
 

@@ -10,12 +10,19 @@ android {
         targetSdkVersion 34
         versionCode 1
         versionName "1.0"
+        buildConfigField "boolean", "BYPASS_REGISTRATION", "false"
     }
 
     buildTypes {
+        debug {
+            // Enable registration bypass in debug builds only
+            buildConfigField "boolean", "BYPASS_REGISTRATION", "true"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Ensure bypass is disabled for release builds
+            buildConfigField "boolean", "BYPASS_REGISTRATION", "false"
         }
     }
 
@@ -26,6 +33,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 }
 

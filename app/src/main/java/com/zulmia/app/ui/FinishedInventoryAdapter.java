@@ -104,6 +104,38 @@ public class FinishedInventoryAdapter extends RecyclerView.Adapter<FinishedInven
                 shareCsv(v, row);
             }
         });
+
+        android.widget.ImageButton btnPod = holder.itemView.findViewById(R.id.btnPod);
+        if (btnPod != null) {
+            btnPod.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    android.content.Context ctx = v.getContext();
+                    android.content.SharedPreferences sp = ctx.getSharedPreferences("zulmia_prefs", android.content.Context.MODE_PRIVATE);
+                    String key = "pod_name_" + row.id;
+                    String podName = sp.getString(key, null);
+                    if (podName != null) {
+                        // Try opening existing POD
+                        android.net.Uri uri = PodUtils.findPdfInDownloads(ctx, podName);
+                        if (uri != null) {
+                            android.content.Intent open = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                            open.setDataAndType(uri, "application/pdf");
+                            open.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            try {
+                                ctx.startActivity(android.content.Intent.createChooser(open, "Open POD"));
+                                return;
+                            } catch (Exception ignored) { }
+                        }
+                    }
+                    // Launch POD capture/creation
+                    android.content.Intent pod = new android.content.Intent(ctx, ProofOfDeliveryActivity.class);
+                    pod.putExtra("inventory_id", row.id);
+                    pod.putExtra("inventory_name", row.name);
+                    pod.putExtra("csv_name", row.csvName);
+                    ctx.startActivity(pod);
+                }
+            });
+        }
     }
 
     @Override
